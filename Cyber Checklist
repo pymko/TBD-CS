@@ -1,152 +1,152 @@
 #Some of the checks are a bit foddy, use common sense and pick the proper ones
 #For some of the config applications for critical services, i will most likely make seperate config files to copy/paste
 
-Basic System Updates and Monitoring
-Update and Upgrade System Packages
-  sudo apt update && sudo apt upgrade -y
+1.Basic System Updates and Monitoring
+  Update and Upgrade System Packages
+    sudo apt update && sudo apt upgrade -y
 
-Create Backups
-  rsync -av --delete /path/to/data /backup/location
+2.Create Backups
+    rsync -av --delete /path/to/data /backup/location
 
 Read Documentation
 Always check system-specific READMEs and logs before implementing changes.
 
-Monitor Systems
-Use monitoring tools:
-  top
-  htop
-  glances
+3.Monitor Systems
+  Use monitoring tools:
+    top
+    htop
+    glances
 
-User and Authentication Management
-List Local Users and Groups
-  cat /etc/passwd
-  cat /etc/group
+4.User and Authentication Management
+  List Local Users and Groups
+    cat /etc/passwd
+    cat /etc/group
 
-Remove Unused or Unauthorized Users/Groups
-  sudo deluser [username]
-  sudo groupdel [groupname]
+5.Remove Unused or Unauthorized Users/Groups
+    sudo deluser [username]
+    sudo groupdel [groupname]
 
-Install Password Complexity Enforcement
-  sudo apt-get install libpam-cracklib
-  sudo nano /etc/pam.d/common-password
+6.Install Password Complexity Enforcement
+    sudo apt-get install libpam-cracklib
+    sudo nano /etc/pam.d/common-password
 
-Set Password Policies in /etc/login.defs
-  PASS_MAX_DAYS 90
-  PASS_MIN_DAYS 30
-  PASS_WARN_AGE 7
+7.Set Password Policies in /etc/login.defs
+    PASS_MAX_DAYS 90
+    PASS_MIN_DAYS 30
+    PASS_WARN_AGE 7
 
-Configure Account Lockout Policies
-  sudo nano /etc/pam.d/common-auth
-  Add auth required pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
+8.Configure Account Lockout Policies
+    sudo nano /etc/pam.d/common-auth
+    Add auth required pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
 
-Enforce Two-Factor Authentication (2FA) for SSH
-  sudo apt install libpam-google-authenticator
-  sudo nano /etc/pam.d/sshd
-  Add auth required pam_google_authenticator.so
-  Enable ChallengeResponseAuthentication yes
+9.Enforce Two-Factor Authentication (2FA) for SSH
+    sudo apt install libpam-google-authenticator
+    sudo nano /etc/pam.d/sshd
+    Add auth required pam_google_authenticator.so
+    Enable ChallengeResponseAuthentication yes
 
-Log and File Monitoring
-Review Logs for Suspicious Activity
-  cat /var/log/auth.log
-  cat /var/log/syslog
-  cat /var/log/messages
+10.Log and File Monitoring
+  Review Logs for Suspicious Activity
+    cat /var/log/auth.log
+    cat /var/log/syslog
+    cat /var/log/messages
 
-Use journalctl to Review System Logs
-  journalctl -xe
+11.Use journalctl to Review System Logs
+    journalctl -xe
 
-Monitor Changes to Files with auditd
-  sudo apt install auditd
-  sudo service auditd start
-  auditctl -w /path/to/file -p war -k keyword
+12.Monitor Changes to Files with auditd
+    sudo apt install auditd
+    sudo service auditd start
+    auditctl -w /path/to/file -p war -k keyword
 
-Check File Integrity Using aide
-  sudo apt install aide
-  sudo aideinit
+13.Check File Integrity Using aide
+    sudo apt install aide
+    sudo aideinit
 
-Check System for Rootkits
-  sudo apt install chkrootkit
-  sudo chkrootkit
-Or:
-  sudo apt install rkhunter
-  sudo rkhunter --check
+14.Check System for Rootkits
+    sudo apt install chkrootkit
+    sudo chkrootkit
+  Or:
+    sudo apt install rkhunter
+    sudo rkhunter --check
+  
+15.Network and Firewall Security
+    Install and Enable GUFW Firewall
+      sudo apt install gufw
+      sudo gufw enable
 
-Network and Firewall Security
-  Install and Enable GUFW Firewall
-    sudo apt install gufw
-    sudo gufw enable
+16.Disable Unused or Insecure Services
+    sudo systemctl stop [service]
+    sudo systemctl disable [service]
 
-Disable Unused or Insecure Services
-  sudo systemctl stop [service]
-  sudo systemctl disable [service]
+17.Harden Network Configuration
+    Enable SYN cookies:
+      echo 1 > /proc/sys/net/ipv4/tcp_syncookies
 
-Harden Network Configuration
-  Enable SYN cookies:
-    echo 1 > /proc/sys/net/ipv4/tcp_syncookies
-
-Disable IPv6 (if not required)
+18.Disable IPv6 (if not required)
     sudo nano /etc/sysctl.conf
     Add net.ipv6.conf.all.disable_ipv6 = 1
   Apply changes:
     sudo sysctl -p
 
-Prevent IP Spoofing
-  Edit /etc/host.conf
-  Add order bind,hosts
-  nospoof on
+19.Prevent IP Spoofing
+    Edit /etc/host.conf
+    Add order bind,hosts
+    nospoof on
   
-Use Fail2ban for Brute-Force Protection
-  sudo apt install fail2ban
-  sudo systemctl enable fail2ban
-  sudo systemctl start fail2ban
+20.Use Fail2ban for Brute-Force Protection
+    sudo apt install fail2ban
+    sudo systemctl enable fail2ban
+    sudo systemctl start fail2ban
 
-Disable ICMP (Ping) Responses
-  Edit /etc/sysctl.conf
-  Add net.ipv4.icmp_echo_ignore_all = 1
+21.Disable ICMP (Ping) Responses
+    Edit /etc/sysctl.conf
+    Add net.ipv4.icmp_echo_ignore_all = 1
 
-System Hardening and Advanced Configurations
-  Secure SSH Configuration
-    Edit /etc/ssh/sshd_config
-  Disable root login:
-    PermitRootLogin no
-  Limit user logins:
-    AllowUsers user1 user2
+22.System Hardening and Advanced Configurations
+    Secure SSH Configuration
+      Edit /etc/ssh/sshd_config
+    Disable root login:
+      PermitRootLogin no
+    Limit user logins:
+      AllowUsers user1 user2
 
-Set Permissions for Sensitive Files
-  chmod 600 /path/to/file
+23.Set Permissions for Sensitive Files
+    chmod 600 /path/to/file
 
-Blacklist Unnecessary Kernel Modules
-  Edit /etc/modprobe.d/blacklist.conf
-  Add blacklist usb-storage
+24.Blacklist Unnecessary Kernel Modules
+    Edit /etc/modprobe.d/blacklist.conf
+    Add blacklist usb-storage
 
-Use TCP Wrappers for SSH Access Control
-Add rules to /etc/hosts.allow:
-  sshd: 192.168.1.100
-And /etc/hosts.deny:
-  sshd: ALL
+25.Use TCP Wrappers for SSH Access Control
+  Add rules to /etc/hosts.allow:
+    sshd: 192.168.1.100
+  And /etc/hosts.deny:
+    sshd: ALL
 
-Web Server and Application Security
-Secure Apache2 Configuration
-Enable HSTS:
-  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-  Set strong cipher suites:
-  SSLCipherSuite HIGH:!aNULL:!MD5
+26.Web Server and Application Security
+  Secure Apache2 Configuration
+  Enable HSTS:
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Set strong cipher suites:
+    SSLCipherSuite HIGH:!aNULL:!MD5
 
-Harden MySQL
-  sudo mysql_secure_installation
-  Restrict remote access:
-  bind-address = 127.0.0.1
-  log_error = /var/log/mysql/error.log
+27.Harden MySQL
+    sudo mysql_secure_installation
+    Restrict remote access:
+    bind-address = 127.0.0.1
+    log_error = /var/log/mysql/error.log
 
-Disable Dangerous PHP Functions
-Edit php.ini:
-  disable_functions = exec, system
+28.Disable Dangerous PHP Functions
+  Edit php.ini:
+    disable_functions = exec, system
 
-Intrusion Detection and Advanced Tools
-Install and Configure Tripwire
-  sudo apt install tripwire
-  sudo tripwire --init
-  sudo tripwire --check
+29.Intrusion Detection and Advanced Tools
+  Install and Configure Tripwire
+    sudo apt install tripwire
+    sudo tripwire --init
+    sudo tripwire --check
 
-Install and Configure an IDS (Snort or Suricata)
-  sudo apt install snort
-  sudo snort -T
+30.Install and Configure an IDS (Snort or Suricata)
+    sudo apt install snort
+    sudo snort -T
