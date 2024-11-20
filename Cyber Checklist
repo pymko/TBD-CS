@@ -1,474 +1,152 @@
-Agbj linux
-
-Forensics
-Log Files
-Check for unauthorized changes or access attempts.
-bash
-Copy code
-cat /var/log/auth.log
-cat /var/log/syslog
-cat /var/log/messages
-
-
-Review system logs for errors or suspicious activity.
-bash
-Copy code
-journalctl -xe
-
-
-Monitor changes to files using auditd (install if not present).
-bash
-Copy code
-sudo apt install auditd
-sudo service auditd start
-auditctl -w /path/to/file -p war -k keyword
-
-
-Crontab
-Review scheduled tasks for unauthorized jobs.
-bash
-Copy code
-crontab -l
-sudo cat /etc/crontab
-sudo ls -la /etc/cron.d/
-
-
-Look for suspicious scripts or executables.
-
-System Hardening
-File and User Management
-Shared Folders
-Remove unnecessary shared folders.
-bash
-Copy code
-sudo net share
-sudo smbstatus
-
-
-Local Users and Groups
-List all users and groups.
-bash
-Copy code
-cat /etc/passwd
-cat /etc/group
-
-
-Remove unused or unauthorized users/groups.
-Password Policies
-Install libpam-cracklib for enforcing complexity.
-bash
-Copy code
-sudo apt-get install libpam-cracklib
-sudo nano /etc/pam.d/common-password
-
-
-Set policies in /etc/login.defs:
-plaintext
-Copy code
-PASS_MAX_DAYS 90
-PASS_MIN_DAYS 30
-PASS_WARN_AGE 7
-
-
-Lockout Policies
-Configure in /etc/pam.d/common-auth:
-plaintext
-Copy code
-auth required pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
-
-
-Firewall
-GUFW Setup
-Install and enable:
-bash
-Copy code
-sudo apt install gufw
-sudo gufw enable
-
-
-Configure rules through the GUI or CLI.
-Display Manager
-Set to a specific display manager (e.g., lightdm):
-bash
-Copy code
-sudo nano /etc/lightdm/lightdm.conf
-Add:
-plaintext
-Copy code
-allow-guest=false
-
-
-
-Permissions Management
-File Permissions
-Changing Ownership
-Change group ownership:
-bash
-Copy code
-chgrp [group] [file]
-
-
-Add/remove users to/from groups:
-bash
-Copy code
-sudo usermod -a -G [group] [username]
-sudo deluser [username] [group]
-
-Access Control
-Set permissions using chmod:
-bash
-Copy code
-chmod u+rwx,g+r,o-r file.txt
-
-
-Secure Sensitive Files
-Locate sensitive files and restrict access:
-bash
-Copy code
-find / -name "*.key" -exec chmod 600 {} \;
-
-
-
-Network Hardening
-Services to Purge/Disable
-Disable unused or insecure services:
-plaintext
-Copy code
-chargen, tftp, talk, ntalk, rsh, rlogin, daytime, discard, echo
-xinetd, openbsd-inetd, avahi-daemon, cups, isc-dhcp-server, slapd
-nfs-server, vsftpd, apache2, dovecot, smbd, squid, rsync, bind9
-Disable them:
-bash
-Copy code
-sudo systemctl stop [service]
-sudo systemctl disable [service]
-
-
-Network Configuration
-Enable SYN cookies:
-bash
-Copy code
-echo 1 > /proc/sys/net/ipv4/tcp_syncookies
-
-
-Disable IPv6 (if not required):
-bash
-Copy code
-sudo nano /etc/sysctl.conf
-Add:
-plaintext
-Copy code
-net.ipv6.conf.all.disable_ipv6 = 1
-Apply changes:
-bash
-Copy code
-sudo sysctl -p
-
-
-Prevent IP forwarding:
-bash
-Copy code
-echo 0 > /proc/sys/net/ipv4/ip_forward
-
-
-Prevent IP spoofing:
-Add to /etc/host.conf:
-plaintext
-Copy code
-order bind,hosts
-nospoof on
-
-
-Network Tools
-Common tools to test and monitor network security:
-bash
-Copy code
-ifconfig, ip, route, ping, netstat, ss, lsof
-dig, host, ssh
-
-
-
-Web Server Hardening
-Apache2 Configuration
-Secure httpd.conf:
-plaintext
-Copy code
-Prevent Clickjacking
-Header always append X-Frame-Options SAMEORIGIN
-Disable ETag
-FileETag None
-
-
-Secure apache2.conf:
-plaintext
-Copy code
-Hide web server version
-Disable directory listing
-Remove server headers
-
-
-PHP Configuration
-Disable dangerous functions like exec() or system() in php.ini.
-SQL Configuration
-Harden MySQL:
-bash
-Copy code
-sudo mysql_secure_installation
-
-
-Restrict remote access and enable logging:
-bash
-Copy code
-bind-address = 127.0.0.1
-log_error = /var/log/mysql/error.log
-
-
-
-Useful Commands
-Finding Files
-Locate files:
-bash
-Copy code
-locate [filename]
-
-
-Find files with specific criteria:
-bash
-Copy code
-find [path] -type f -name "*.mp3" -exec rm {} \;
-
-
-Monitoring Services
-Use systemctl to manage services:
-bash
-Copy code
-systemctl status [service]
-systemctl enable [service]
-
-
-Managing Users and Groups
-Delete users or groups:
-bash
-Copy code
-sudo deluser [username]
-sudo groupdel [groupname]
-
-
-
-General Security Practices
-Read Documentation: Always check system-specific READMEs and logs before implementing changes.
-Create Backups: Backup important data and configurations before making changes.
-Monitor Systems: Use monitoring tools like top, htop, or glances.
-Apply Updates: Regularly update your system.
-bash
-Copy code
-sudo apt update && sudo apt upgrade -y
-
-Check for Rootkits
-Use chkrootkit or rkhunter to scan for potential rootkits.
-bash
-Copy code
-sudo apt install chkrootkit
-sudo chkrootkit
-or
-bash
-Copy code
-sudo apt install rkhunter
-sudo rkhunter --check
-
-
-File Integrity Monitoring
-Set up a file integrity monitoring tool like aide to detect unauthorized file changes.
-bash
-Copy code
-sudo apt install aide
-sudo aideinit
-
-
-Check User SSH Activity
-Look for unusual login times or failed authentication attempts.
-bash
-Copy code
-cat /var/log/auth.log | grep "sshd"
-
-
-
-Additional System Hardening
-Disable Unnecessary Modules
-Disable unused kernel modules to reduce the attack surface.
-bash
-Copy code
-sudo nano /etc/modprobe.d/blacklist.conf
-Add the module you want to disable, e.g.:
-plaintext
-Copy code
-blacklist usb-storage
-
-
-SSH Configuration
-Secure SSH settings in /etc/ssh/sshd_config:
-Disable root login:
-plaintext
-Copy code
-PermitRootLogin no
-
-
-Limit user logins:
-plaintext
-Copy code
-AllowUsers user1 user2
-
-
-TCP Wrappers for SSH
-Restrict access to SSH by IP in /etc/hosts.allow and /etc/hosts.deny:
-plaintext
-Copy code
-/etc/hosts.allow: sshd: 192.168.1.100
-/etc/hosts.deny: sshd: ALL
-
-
-Sysctl Tweaks for Security
-Harden various kernel parameters by modifying /etc/sysctl.conf:
-plaintext
-Copy code
-net.ipv4.conf.all.rp_filter = 1
-net.ipv4.tcp_syncookies = 1
-net.ipv4.conf.all.accept_source_route = 0
-net.ipv4.conf.all.log_martians = 1
-
-
-File System Hardening
-Disable device-mapper by modifying /etc/lvm/lvm.conf:
-plaintext
-Copy code
-devices {
-  use_lvmetad = 0
-}
-
-
-
-Network Security Enhancements
-DNSSEC for DNS Security
-Enable DNSSEC validation in /etc/named.conf if you're running a DNS server.
-plaintext
-Copy code
-options {
-    dnssec-enable yes;
-    dnssec-validation auto;
-}
-
-
-Intrusion Detection System (IDS)
-Install and configure an IDS like Snort or Suricata for real-time traffic analysis.
-bash
-Copy code
-sudo apt install snort
-sudo snort -T
-
-
-Use Fail2ban
-Automatically block IPs attempting to brute-force your SSH or other services:
-bash
-Copy code
-sudo apt install fail2ban
-sudo systemctl enable fail2ban
-sudo systemctl start fail2ban
-
+#Some of the checks are a bit foddy, use common sense and pick the proper ones
+#For some of the config applications for critical services, i will most likely make seperate config files to copy/paste
+
+Basic System Updates and Monitoring
+Update and Upgrade System Packages
+  sudo apt update && sudo apt upgrade -y
+
+Create Backups
+  rsync -av --delete /path/to/data /backup/location
+
+Read Documentation
+Always check system-specific READMEs and logs before implementing changes.
+
+Monitor Systems
+Use monitoring tools:
+  top
+  htop
+  glances
+
+User and Authentication Management
+List Local Users and Groups
+  cat /etc/passwd
+  cat /etc/group
+
+Remove Unused or Unauthorized Users/Groups
+  sudo deluser [username]
+  sudo groupdel [groupname]
+
+Install Password Complexity Enforcement
+  sudo apt-get install libpam-cracklib
+  sudo nano /etc/pam.d/common-password
+
+Set Password Policies in /etc/login.defs
+  PASS_MAX_DAYS 90
+  PASS_MIN_DAYS 30
+  PASS_WARN_AGE 7
+
+Configure Account Lockout Policies
+  sudo nano /etc/pam.d/common-auth
+  Add auth required pam_faillock.so preauth silent deny=3 unlock_time=900 fail_interval=900
+
+Enforce Two-Factor Authentication (2FA) for SSH
+  sudo apt install libpam-google-authenticator
+  sudo nano /etc/pam.d/sshd
+  Add auth required pam_google_authenticator.so
+  Enable ChallengeResponseAuthentication yes
+
+Log and File Monitoring
+Review Logs for Suspicious Activity
+  cat /var/log/auth.log
+  cat /var/log/syslog
+  cat /var/log/messages
+
+Use journalctl to Review System Logs
+  journalctl -xe
+
+Monitor Changes to Files with auditd
+  sudo apt install auditd
+  sudo service auditd start
+  auditctl -w /path/to/file -p war -k keyword
+
+Check File Integrity Using aide
+  sudo apt install aide
+  sudo aideinit
+
+Check System for Rootkits
+  sudo apt install chkrootkit
+  sudo chkrootkit
+Or:
+  sudo apt install rkhunter
+  sudo rkhunter --check
+
+Network and Firewall Security
+  Install and Enable GUFW Firewall
+    sudo apt install gufw
+    sudo gufw enable
+
+Disable Unused or Insecure Services
+  sudo systemctl stop [service]
+  sudo systemctl disable [service]
+
+Harden Network Configuration
+  Enable SYN cookies:
+    echo 1 > /proc/sys/net/ipv4/tcp_syncookies
+
+Disable IPv6 (if not required)
+    sudo nano /etc/sysctl.conf
+    Add net.ipv6.conf.all.disable_ipv6 = 1
+  Apply changes:
+    sudo sysctl -p
+
+Prevent IP Spoofing
+  Edit /etc/host.conf
+  Add order bind,hosts
+  nospoof on
+  
+Use Fail2ban for Brute-Force Protection
+  sudo apt install fail2ban
+  sudo systemctl enable fail2ban
+  sudo systemctl start fail2ban
 
 Disable ICMP (Ping) Responses
-Prevent external pinging of your machine. Modify /etc/sysctl.conf:
-plaintext
-Copy code
-net.ipv4.icmp_echo_ignore_all = 1
+  Edit /etc/sysctl.conf
+  Add net.ipv4.icmp_echo_ignore_all = 1
 
+System Hardening and Advanced Configurations
+  Secure SSH Configuration
+    Edit /etc/ssh/sshd_config
+  Disable root login:
+    PermitRootLogin no
+  Limit user logins:
+    AllowUsers user1 user2
 
+Set Permissions for Sensitive Files
+  chmod 600 /path/to/file
 
-Web Server (Apache2/Nginx) Security
-Apache2 Configuration
-Enable HTTP Strict Transport Security (HSTS):
-plaintext
-Copy code
-Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+Blacklist Unnecessary Kernel Modules
+  Edit /etc/modprobe.d/blacklist.conf
+  Add blacklist usb-storage
 
+Use TCP Wrappers for SSH Access Control
+Add rules to /etc/hosts.allow:
+  sshd: 192.168.1.100
+And /etc/hosts.deny:
+  sshd: ALL
 
-Set a strong cipher suite:
-plaintext
-Copy code
-SSLCipherSuite HIGH:!aNULL:!MD5
+Web Server and Application Security
+Secure Apache2 Configuration
+Enable HSTS:
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Set strong cipher suites:
+  SSLCipherSuite HIGH:!aNULL:!MD5
 
+Harden MySQL
+  sudo mysql_secure_installation
+  Restrict remote access:
+  bind-address = 127.0.0.1
+  log_error = /var/log/mysql/error.log
 
-Nginx Configuration
-Disable HTTP methods:
-plaintext
-Copy code
-server {
-  if ($request_method !~ ^(GET|POST)$) {
-    return 444;
-  }
-}
+Disable Dangerous PHP Functions
+Edit php.ini:
+  disable_functions = exec, system
 
+Intrusion Detection and Advanced Tools
+Install and Configure Tripwire
+  sudo apt install tripwire
+  sudo tripwire --init
+  sudo tripwire --check
 
-Use strong SSL configuration:
-plaintext
-Copy code
-ssl_protocols TLSv1.2 TLSv1.3;
-ssl_ciphers 'TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384';
-
-
-
-Additional User and Permission Management
-Enforce Two-Factor Authentication (2FA) for SSH
-Install Google Authenticator for SSH 2FA:
-bash
-Copy code
-sudo apt install libpam-google-authenticator
-sudo nano /etc/pam.d/sshd
-Add:
-plaintext
-Copy code
-auth required pam_google_authenticator.so
-Then enable ChallengeResponseAuthentication in /etc/ssh/sshd_config.
-Configure User Umask
-Set a restrictive umask to ensure files are created with secure permissions.
-plaintext
-Copy code
-UMASK 0777
-
-Limit User Access with sudo
-Use the /etc/sudoers file to limit sudo access:
-plaintext
-Copy code
-user1    ALL=(ALL) NOPASSWD: /usr/bin/ls, /usr/bin/cat
-
-
-Backup and Recovery
-Automated Backups
-Set up an automated backup system using rsync or a similar tool.
-bash
-Copy code
-rsync -av --delete /path/to/data /backup/location
-
-Snapshot Backups with LVM
-Create system snapshots for easier rollback in case of failure or breach.
-bash
-Copy code
-lvcreate --size 10G --snapshot --name backup /dev/vgname/lvname
-
-
-Additional Security Tools
-Audit Logs with auditd
-Use auditd to track critical system events and log them:
-bash
-Copy code
-sudo apt install auditd
-sudo auditctl -w /etc/shadow -p wa
-
-Check System Integrity with Tripwire
-Install and configure Tripwire for file integrity monitoring.
-bash
-Copy code
-sudo apt install tripwire
-sudo tripwire --init
-sudo tripwire --check
-
-
+Install and Configure an IDS (Snort or Suricata)
+  sudo apt install snort
+  sudo snort -T
