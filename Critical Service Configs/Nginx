@@ -1,0 +1,29 @@
+# Nginx Worker Settings
+worker_processes auto            # Set worker processes to auto for optimal resource usage
+worker_connections 1024          # Set maximum connections per worker
+
+# Security Headers
+add_header X-Frame-Options "SAMEORIGIN";  # Prevent Clickjacking attacks
+add_header X-XSS-Protection "1; mode=block"; # Enable XSS protection
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains"; # Enforce HSTS
+
+# Logging Settings
+access_log /var/log/nginx/access.log;
+error_log /var/log/nginx/error.log;
+
+# HTTP Server Settings
+http {
+    include       mime.types;         # Include MIME type mappings
+    default_type  application/octet-stream; # Default type for unspecified files
+    log_format combined '$remote_addr - $remote_user [$time_local] "$request" '
+                         '$status $body_bytes_sent "$http_referer" '
+                         '"$http_user_agent" "$http_x_forwarded_for"'; # Detailed log format
+    sendfile on;                      # Enable efficient file transfers
+    tcp_nopush on;                    # Enable Nagle's algorithm for optimized TCP connections
+
+    # Connection and Timeout Settings
+    client_max_body_size 10M;         # Limit client request size to prevent DoS attacks
+    keepalive_timeout 65;             # Set keep-alive timeout for persistent connections
+    client_header_timeout 10s;        # Set a timeout for client headers
+    client_body_timeout 10s;          # Set a timeout for receiving request bodies
+}
