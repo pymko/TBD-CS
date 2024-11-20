@@ -1,0 +1,25 @@
+# PostgreSQL General Settings
+listen_addresses = 'localhost'    # Bind PostgreSQL to localhost only for local connections
+port = 5432                       # Default port for PostgreSQL (can be changed for better security)
+max_connections = 100             # Limit the maximum number of concurrent connections
+
+# Authentication Settings
+password_encryption = scram-sha-256  # Use SCRAM-SHA-256 for password encryption to improve security
+
+# Connection Settings
+shared_buffers = 128MB             # Set shared memory buffers size for optimal performance
+work_mem = 4MB                    # Set the work memory per query for improved query performance
+
+# Logging Settings
+log_statement = 'none'            # Only log errors for efficiency
+log_connections = on              # Log incoming connections for auditing purposes
+log_disconnections = on           # Log disconnects for troubleshooting and security auditing
+
+# Security Settings
+ssl = on                           # Enable SSL for encrypted connections
+ssl_cert_file = '/etc/ssl/certs/postgresql-cert.pem'  # SSL certificate file
+ssl_key_file = '/etc/ssl/private/postgresql-key.pem'  # SSL private key file
+
+# Timezone and Locale Settings
+timezone = 'UTC'                  # Set default timezone to UTC
+datestyle = 'ISO, MDY'            # Set date style format
