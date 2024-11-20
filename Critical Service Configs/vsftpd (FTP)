@@ -1,0 +1,20 @@
+# General FTP Settings
+anonymous_enable=NO              # Disable anonymous FTP login for security
+local_enable=YES                 # Enable local user login
+write_enable=YES                 # Allow write access to local users
+
+# Security Settings
+chroot_local_user=YES           # Jail local users to their home directories for additional security
+listen=YES                       # Enable the FTP server to listen for incoming connections
+ssl_enable=YES                   # Enable SSL/TLS for secure communication
+ssl_cert_file=/etc/ssl/certs/ftp_cert.pem # Specify the SSL certificate file
+ssl_key_file=/etc/ssl/private/ftp_key.pem # Specify the SSL private key file
+
+# Logging Settings
+xferlog_enable=YES               # Enable transfer logging
+xferlog_file=/var/log/vsftpd.log  # Define log file location
+
+# Restriction Settings
+pasv_enable=YES                  # Enable passive mode for file transfers
+pasv_min_port=10000              # Define the minimum port for passive mode
+pasv_max_port=10100              # Define the maximum port for passive mode
