@@ -1,1 +1,26 @@
+# Apache2 General Settings
+ServerTokens Prod                # Hide Apache version information
+ServerSignature Off              # Disable Apache signature in error pages
+TraceEnable Off                  # Disable TRACE HTTP method for security
+
+# Directory Settings
+<Directory /var/www/html>
+    Options -Indexes             # Disable directory listing
+    AllowOverride None           # Disable .htaccess for security
+    Require all granted          # Allow access to the directory
+</Directory>
+
+# Logging Settings
+LogLevel warn                    # Log level set to warn for production environment
+ErrorLog ${APACHE_LOG_DIR}/error.log
+CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+# SSL/TLS Settings
+<VirtualHost *:443>
+    SSLEngine on
+    SSLCertificateFile /etc/ssl/certs/ssl-cert-snakeoil.pem
+    SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+    SSLCipherSuite HIGH:!aNULL:!MD5
+    SSLProtocol all -SSLv2 -SSLv3
+</VirtualHost>
 
