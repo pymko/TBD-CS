@@ -1,0 +1,77 @@
+# Squid Proxy Configuration
+
+# Define the HTTP port
+http_port 3128
+
+# Basic Access Control - Allow only from specific networks
+# Allow local network (replace with your network range)
+acl localnet src 192.168.1.0/24  # Allow access from your internal network
+
+# Deny all other access
+http_access deny all
+
+# Allow access only to the defined networks
+http_access allow localnet
+
+# Authentication (Optional - can be added for user-based control)
+# Uncomment to require authentication (ensure you have PAM or other auth methods configured)
+# auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwd
+# auth_param basic children 5
+# auth_param basic realm Squid Proxy Server
+# acl authenticated proxy_auth REQUIRED
+# http_access allow authenticated
+
+# DNS security - prevent DNS poisoning
+dns_v4_first on
+
+# Logging - You should configure Squid logging to help with security auditing
+access_log /var/log/squid/access.log squid
+cache_log /var/log/squid/cache.log
+
+# Limit request size to avoid buffer overflow attacks
+request_size_max 10 MB
+
+# Timeout settings (to prevent hanging connections)
+request_timeout 30 seconds
+connect_timeout 30 seconds
+client_timeout 30 seconds
+
+# Set up secure SSL handling
+# Allow secure SSL connections and configure SSL certificates (optional)
+https_port 3129 cert=/etc/squid/ssl_cert.pem key=/etc/squid/ssl_key.pem
+
+# SSL Bump (for SSL interception, if needed)
+# Uncomment the lines below for SSL Bump if your use case requires SSL interception
+# ssl_bump peek all
+# ssl_bump splice all
+# ssl_bump terminate all
+
+# Cache management
+# Set cache size limits to prevent abuse
+maximum_object_size_in_memory 8 MB
+maximum_object_size 128 MB
+cache_dir ufs /var/spool/squid 1000 16 256
+
+# Clear old cache files after some time
+cache_store_log none
+
+# Enable the squid process to use minimal privileges
+# Squid should run under its own user and group (typically 'proxy')
+cache_effective_user proxy
+cache_effective_group proxy
+
+# Deny all potentially dangerous or unnecessary HTTP methods
+# This helps to reduce security risks such as XSS and other web application attacks
+acl denied_methods method DELETE
+acl denied_methods method TRACE
+acl denied_methods method OPTIONS
+http_access deny denied_methods
+
+# Enable logging of the HTTP response codes (optional)
+log_ip_on_user_error on
+
+# Disable ICMP (ping) responses from Squid, which can prevent DoS attacks
+icmp_disabled on
+
+# Enable firewall-like access control to prevent direct access to the proxy server from non-trusted hosts
+# You can use iptables or UFW to restrict access to Squid's listening ports (3128, 3129, etc.)
